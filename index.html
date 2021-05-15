@@ -1,0 +1,74 @@
+<html lang="en">
+  <head>
+    <title>My Cruddy App</title>
+  </head>
+  <body>
+    <h1>Firebase-y Stuff</h1>
+
+    <div>
+      <form>
+        <textarea id="secret_message" cols="30" rows="10"></textarea>
+        <br />
+        <button id="submit">Submit</button>
+      </form>
+    </div>
+    <div id="result"></div>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyCIM7pQkzLjM0ONYt6vwa-iDBACeSOWPhU",
+        authDomain: "cruddy-9545c.firebaseapp.com",
+        projectId: "cruddy-9545c",
+        storageBucket: "cruddy-9545c.appspot.com",
+        messagingSenderId: "571561049081",
+        appId: "1:571561049081:web:6bd008d277095e1d36db28",
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // initialize the db
+      db = firebase.firestore();
+    </script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let msg = $("#secret_message")[0];
+      // let msg = document.getElementById("secret_message");
+      let btn = $("#submit");
+      let result = $("#result");
+
+      $(document).ready(() => {
+        $(btn).on("click", e => {
+          e.preventDefault();
+
+          // referencing the firebase db
+          db.collection("secrets")
+            .add({
+              message: msg.value,
+            })
+            .then(docRef => {
+              console.log("Document written with ID: ", docRef.id);
+              result.html("Your secret is safe with us!");
+              msg.value = "";
+            })
+            .catch(error => {
+              console.error("Error adding document: ", error);
+              result.html("Oops! Something went wrong.");
+            });
+        });
+      });
+    </script>
+  </body>
+</html>
