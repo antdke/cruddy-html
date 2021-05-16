@@ -1,18 +1,21 @@
 <html lang="en">
   <head>
-    <title>My Cruddy App</title>
+    <title>My Cruddy Todo List</title>
   </head>
+
   <body>
-    <h1>Secret-y Secret Storage</h1>
+    <h1>My Cruddy Todo List</h1>
 
     <div>
       <form>
-        <textarea id="secret_message" cols="30" rows="10"></textarea>
+        <input id="task" type="text" />
         <br />
-        <button id="submit">Submit</button>
+        <button id="add_task">Submit</button>
       </form>
     </div>
     <div id="result"></div>
+    <br />
+    <ul id="tasks_list"></ul>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
@@ -47,30 +50,46 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      let msg = $("#secret_message")[0];
-      // let msg = document.getElementById("secret_message");
-      let btn = $("#submit");
-      let result = $("#result");
-
       $(document).ready(() => {
-        $(btn).on("click", e => {
+        // dom refs
+        let task = $("#task")[0];
+        let add = $("#add_task");
+        let result = $("#result");
+        let tasks = $("#tasks_list")[0];
+
+        // global variable to hold onto the data listener for tasks
+        let task_query_listener;
+
+        $(add).on("click", e => {
           e.preventDefault();
 
           // referencing the firebase db
-          db.collection("secrets")
+          db.collection("tasks")
             .add({
-              message: msg.value,
+              task: task.value,
             })
             .then(docRef => {
               console.log("Document written with ID: ", docRef.id);
-              result.html("Your secret is safe with us!");
-              msg.value = "";
+              result.html("Task added!");
+              task.value = "";
             })
             .catch(error => {
               console.error("Error adding document: ", error);
               result.html("Oops! Something went wrong.");
             });
         });
+
+        task_query_listener = db
+          .collection("tasks")
+          .where("task", "!=", "")
+          .onSnapshot(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              console.log(doc.data());
+              var temp = document.createElement("li");
+              temp.innerHTML = doc.data().task;
+              tasks.appendChild(temp);
+            });
+          });
       });
     </script>
   </body>
