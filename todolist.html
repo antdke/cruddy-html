@@ -50,12 +50,21 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      // global functions
+      function removeAllChildNodes(parent) {
+        while (parent.firstChild) {
+          parent.removeChild(parent.firstChild);
+        }
+      }
+
       $(document).ready(() => {
         // dom refs
         let task = $("#task")[0];
         let add = $("#add_task");
         let result = $("#result");
         let tasks = $("#tasks_list")[0];
+        // temp element to hold each task to be listed
+        let temp;
 
         // global variable to hold onto the data listener for tasks
         let task_query_listener;
@@ -67,6 +76,7 @@
           db.collection("tasks")
             .add({
               task: task.value,
+              time_stamp: new Date().getTime(),
             })
             .then(docRef => {
               console.log("Document written with ID: ", docRef.id);
@@ -77,19 +87,42 @@
               console.error("Error adding document: ", error);
               result.html("Oops! Something went wrong.");
             });
-        });
 
-        task_query_listener = db
-          .collection("tasks")
-          .where("task", "!=", "")
-          .onSnapshot(querySnapshot => {
-            querySnapshot.forEach(doc => {
-              console.log(doc.data());
-              var temp = document.createElement("li");
-              temp.innerHTML = doc.data().task;
+          // task_query_listener = db
+          //   .collection("tasks")
+          //   .onSnapshot(querySnapshot => {
+          //     querySnapshot.forEach(doc => {
+          //       console.log(doc.data());
+          //       // creates list item element
+          //       temp = document.createElement("li");
+          //       // add's task text from Firebase to list item element
+          //       temp.innerHTML = doc.data().task;
+          //       // appends list item el with task test to unordered list dom element
+          //       tasks.appendChild(temp);
+          //     });
+          //   });
+
+          task_query_listener = db.collection("tasks").onSnapshot(snapshot => {
+            console.log(snapshot.docs[0].data());
+            while (tasks.children.length > 0) {
+              tasks.removeChild(tasks.children[0]);
+            }
+
+            let resultArray = [];
+            for (let i = 0; i < snapshot.docs.length; i++) {
+              resultArray.push(snapshot.docs[i].data());
+            }
+
+            // sorting my todo tasks by the time they were created (descending order "b - a")
+            resultArray.sort((a, b) => b.time_stamp - a.time_stamp);
+
+            for (let i = 0; i < resultArray.length; i++) {
+              temp = document.createElement("li");
+              temp.innerHTML = resultArray[i].task;
               tasks.appendChild(temp);
-            });
+            }
           });
+        });
       });
     </script>
   </body>
