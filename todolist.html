@@ -69,6 +69,28 @@
         // global variable to hold onto the data listener for tasks
         let task_query_listener;
 
+        task_query_listener = db.collection("tasks").onSnapshot(snapshot => {
+          console.log(snapshot.docs[0].data());
+          while (tasks.children.length > 0) {
+            tasks.removeChild(tasks.children[0]);
+          }
+
+          let resultArray = [];
+          for (let i = 0; i < snapshot.docs.length; i++) {
+            resultArray.push(snapshot.docs[i].data());
+          }
+
+          // sorting my todo tasks by the time they were created (descending order "b - a")
+          resultArray.sort((a, b) => b.time_stamp - a.time_stamp);
+
+          for (let i = 0; i < resultArray.length; i++) {
+            temp = document.createElement("li");
+            temp.innerHTML = resultArray[i].task;
+            tasks.appendChild(temp);
+          }
+        });
+
+        // when user enters new task, save it to Firebase
         $(add).on("click", e => {
           e.preventDefault();
 
@@ -101,27 +123,6 @@
           //       tasks.appendChild(temp);
           //     });
           //   });
-
-          task_query_listener = db.collection("tasks").onSnapshot(snapshot => {
-            console.log(snapshot.docs[0].data());
-            while (tasks.children.length > 0) {
-              tasks.removeChild(tasks.children[0]);
-            }
-
-            let resultArray = [];
-            for (let i = 0; i < snapshot.docs.length; i++) {
-              resultArray.push(snapshot.docs[i].data());
-            }
-
-            // sorting my todo tasks by the time they were created (descending order "b - a")
-            resultArray.sort((a, b) => b.time_stamp - a.time_stamp);
-
-            for (let i = 0; i < resultArray.length; i++) {
-              temp = document.createElement("li");
-              temp.innerHTML = resultArray[i].task;
-              tasks.appendChild(temp);
-            }
-          });
         });
       });
     </script>
