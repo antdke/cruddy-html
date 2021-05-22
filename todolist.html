@@ -82,8 +82,8 @@
         // global variable to hold onto the data listener for tasks
         let task_query_listener;
 
+        // LISTING THE TASKS
         task_query_listener = db.collection("tasks").onSnapshot(snapshot => {
-          console.log(snapshot.docs[0].data());
           while (tasks.children.length > 0) {
             tasks.removeChild(tasks.children[0]);
           }
