@@ -134,9 +134,12 @@
               time_stamp: new Date().getTime(),
             })
             .then(docRef => {
-              taskId[task.value] = docRef.id;
-              window.localStorage.setItem("taskId", JSON.stringify(taskId));
-              console.log(taskId);
+              // turn the stringified hash in localStorage into a hash again
+              let taskIdLS = JSON.parse(window.localStorage.getItem("taskId"));
+              // add new task to the LocalStorage hash
+              taskIdLS[task.value] = docRef.id;
+              // give LocalStorage back it's updated hash
+              window.localStorage.setItem("taskId", JSON.stringify(taskIdLS));
               console.log("Document written with ID: ", docRef.id);
               result.html("Task added!");
               task.value = "";
