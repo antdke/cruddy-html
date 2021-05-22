@@ -63,8 +63,21 @@
         let add = $("#add_task");
         let result = $("#result");
         let tasks = $("#tasks_list")[0];
+
         // temp element to hold each task to be listed
         let temp;
+        // temp btn element to hold each edit btn to be listed
+        let tempEdit;
+        // temp btn element to hold each delete to be listed
+        let tempDel;
+        // this is a hash to store docRef.id and its corresponding task
+        let taskId = {};
+
+        // ONLY if there's nothing in localStorage, then grab data from taskId
+        if (window.localStorage.getItem("taskId") === null) {
+          // create a semi-permanent copy of the taskId hash in local storage
+          window.localStorage.setItem("taskId", JSON.stringify(taskId));
+        }
 
         // global variable to hold onto the data listener for tasks
         let task_query_listener;
@@ -83,13 +96,33 @@
           // sorting my todo tasks by the time they were created (descending order "b - a")
           resultArray.sort((a, b) => b.time_stamp - a.time_stamp);
 
+          // listing out the tasks
           for (let i = 0; i < resultArray.length; i++) {
             temp = document.createElement("li");
             temp.innerHTML = resultArray[i].task;
+
+            // creating the edit button
+            tempEdit = document.createElement("button");
+            tempEdit.addEventListener("click", editTask);
+            tempEdit.innerText = "edit";
+
+            // creating the delete button
+            tempDel = document.createElement("button");
+            tempDel.addEventListener("click", function() {
+              deleteTask(resultArray[i].task);
+            });
+            tempDel.innerText = "done!";
+
+            // add edit button to li
+            temp.appendChild(tempEdit);
+            // add delete button to li
+            temp.appendChild(tempDel);
+            // add li to ul
             tasks.appendChild(temp);
           }
         });
 
+        // CREATE
         // when user enters new task, save it to Firebase
         $(add).on("click", e => {
           e.preventDefault();
@@ -101,6 +134,9 @@
               time_stamp: new Date().getTime(),
             })
             .then(docRef => {
+              taskId[task.value] = docRef.id;
+              window.localStorage.setItem("taskId", JSON.stringify(taskId));
+              console.log(taskId);
               console.log("Document written with ID: ", docRef.id);
               result.html("Task added!");
               task.value = "";
@@ -124,6 +160,26 @@
           //     });
           //   });
         });
+
+        // EDIT
+        function editTask(e) {
+          console.log("edit!");
+        }
+
+        // DELETE
+        function deleteTask(task) {
+          let taskIdLS = JSON.parse(window.localStorage.getItem("taskId"));
+
+          db.collection("tasks")
+            .doc(`${taskIdLS[task]}`)
+            .delete()
+            .then(() => {
+              console.log("Document successfully deleted!");
+            })
+            .catch(error => {
+              console.error("Error removing document: ", error);
+            });
+        }
       });
     </script>
   </body>
