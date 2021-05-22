@@ -174,6 +174,9 @@
             .doc(`${taskIdLS[task]}`)
             .delete()
             .then(() => {
+              // after deleting the task on Firebase, delete it from the hash as well
+              delete taskIdLS[task];
+              window.localStorage.setItem("taskId", JSON.stringify(taskIdLS));
               console.log("Document successfully deleted!");
             })
             .catch(error => {
