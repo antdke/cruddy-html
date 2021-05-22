@@ -127,41 +127,38 @@
         $(add).on("click", e => {
           e.preventDefault();
 
-          // referencing the firebase db
-          db.collection("tasks")
-            .add({
-              task: task.value,
-              time_stamp: new Date().getTime(),
-            })
-            .then(docRef => {
-              // turn the stringified hash in localStorage into a hash again
-              let taskIdLS = JSON.parse(window.localStorage.getItem("taskId"));
-              // add new task to the LocalStorage hash
-              taskIdLS[task.value] = docRef.id;
-              // give LocalStorage back it's updated hash
-              window.localStorage.setItem("taskId", JSON.stringify(taskIdLS));
-              console.log("Document written with ID: ", docRef.id);
-              result.html("Task added!");
-              task.value = "";
-            })
-            .catch(error => {
-              console.error("Error adding document: ", error);
-              result.html("Oops! Something went wrong.");
-            });
+          // get the obj from LocalStorage
+          let taskIdLS = JSON.parse(window.localStorage.getItem("taskId"));
 
-          // task_query_listener = db
-          //   .collection("tasks")
-          //   .onSnapshot(querySnapshot => {
-          //     querySnapshot.forEach(doc => {
-          //       console.log(doc.data());
-          //       // creates list item element
-          //       temp = document.createElement("li");
-          //       // add's task text from Firebase to list item element
-          //       temp.innerHTML = doc.data().task;
-          //       // appends list item el with task test to unordered list dom element
-          //       tasks.appendChild(temp);
-          //     });
-          //   });
+          // if the user tries to enter a duplicate task, don't let them
+          if (task.value in taskIdLS) {
+            console.log("This task already exists.");
+            result.html("This task already exists. Create a different one!");
+          } else {
+            // referencing the firebase db
+            db.collection("tasks")
+              .add({
+                task: task.value,
+                time_stamp: new Date().getTime(),
+              })
+              .then(docRef => {
+                // turn the stringified hash in localStorage into a hash again
+                let taskIdLS = JSON.parse(
+                  window.localStorage.getItem("taskId"),
+                );
+                // add new task to the LocalStorage hash
+                taskIdLS[task.value] = docRef.id;
+                // give LocalStorage back it's updated hash
+                window.localStorage.setItem("taskId", JSON.stringify(taskIdLS));
+                console.log("Document written with ID: ", docRef.id);
+                result.html("Task added!");
+                task.value = "";
+              })
+              .catch(error => {
+                console.error("Error adding document: ", error);
+                result.html("Oops! Something went wrong.");
+              });
+          }
         });
 
         // EDIT
