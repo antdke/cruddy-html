@@ -94,7 +94,7 @@
           }
 
           // sorting my todo tasks by the time they were created (descending order "b - a")
-          resultArray.sort((a, b) => b.time_stamp - a.time_stamp);
+          resultArray.sort((a, b) => b.created_at - a.created_at);
 
           // listing out the tasks
           for (let i = 0; i < resultArray.length; i++) {
@@ -141,7 +141,7 @@
             db.collection("tasks")
               .add({
                 task: task.value,
-                time_stamp: new Date().getTime(),
+                created_at: new Date().getTime(),
               })
               .then(docRef => {
                 // turn the stringified hash in localStorage into a hash again
