@@ -103,7 +103,9 @@
 
             // creating the edit button
             tempEdit = document.createElement("button");
-            tempEdit.addEventListener("click", editTask);
+            tempEdit.addEventListener("click", function() {
+              editTask(resultArray[i].task);
+            });
             tempEdit.innerText = "edit";
 
             // creating the delete button
@@ -162,8 +164,28 @@
         });
 
         // EDIT
-        function editTask(e) {
-          console.log("edit!");
+        function editTask(task) {
+          let taskIdLS = JSON.parse(window.localStorage.getItem("taskId"));
+
+          console.log("This is the edit function. Here's the task: ", task);
+          let updatedTask = prompt(
+            `This is the prompt pop up. Here's the task you want to edit: "${task}."`,
+          );
+
+          // update the task in Firebase
+          db.collection("tasks")
+            .doc(`${taskIdLS[task]}`)
+            .update({ task: updatedTask })
+            .then(() => {
+              // after updating the task on Firebase, update it in LocalStorage
+              taskIdLS[updatedTask] = taskIdLS[task];
+              delete taskIdLS[task];
+              window.localStorage.setItem("taskId", JSON.stringify(taskIdLS));
+              console.log("Document successfully updated!");
+            })
+            .catch(error => {
+              console.error("Error updating document: ", error);
+            });
         }
 
         // DELETE
